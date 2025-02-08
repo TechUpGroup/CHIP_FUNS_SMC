@@ -1,0 +1,22 @@
+[package]
+name = "chip-fun-sc"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "chip_fun_sc"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = {version= "0.30.1", features=["init-if-needed"]}
+anchor-spl = "0.30.1"
+bytemuck = "1.21.0"
