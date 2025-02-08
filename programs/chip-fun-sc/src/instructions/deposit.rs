@@ -25,7 +25,7 @@ pub struct Deposit<'info> {
         bump
     )]
     pub account_deposit: Box<Account<'info,AccountDeposit>>,
-    pub mint: Box<Account<'info, Mint>>,
+    pub mint: Account<'info, Mint>,
     #[account(
         seeds = [b"Vault"],
         bump,
@@ -46,7 +46,7 @@ pub fn handler_deposit(ctx: Context<Deposit>,amount:u64, _id: String) -> Result<
     transfer_token_to_account(
         ctx.accounts.ata_depositor.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
-        ctx.accounts.vault.to_account_info(),
+        ctx.accounts.depositor.to_account_info(),
         amount,
         ctx.accounts.token_program.to_account_info(),
         None,

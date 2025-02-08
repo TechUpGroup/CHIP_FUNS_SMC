@@ -9,6 +9,7 @@ import { ComputeBudgetProgram } from "@solana/web3.js";
         operator,
         user
     } = await setup();
+        console.log("🚀 ~ file: withdraw.ts:12 ~ program:", program.programId)
 
       
       const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({ 
@@ -17,17 +18,15 @@ import { ComputeBudgetProgram } from "@solana/web3.js";
       });
     const signature = await program.methods
         .withdraw(
-            new BN(50000000),
+            new BN(20000000),
             "1"
     )
         .accounts({
+            sender: user.publicKey,
            receiver: user.publicKey,
-           sender: user.publicKey,
-           
+           operator: operator.publicKey
         })
-        .preInstructions([
-            addPriorityFee
-        ])
-        .signers([operator,user]).rpc({skipPreflight: true});
-    console.log("init: ", signature);
+        
+        .signers([ user,operator]).rpc();
+    console.log("withdraw: ", signature);
 })();

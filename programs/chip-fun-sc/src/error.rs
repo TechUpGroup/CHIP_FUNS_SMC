@@ -4,4 +4,6 @@ use anchor_lang::prelude::*;
 pub enum ErrorMessage {
     #[msg("Balance insufficient")]
     BalanceInsufficient,
+    #[msg("Invalid operator")]
+    InvalidOperator,
 }

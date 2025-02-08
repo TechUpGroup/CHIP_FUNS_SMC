@@ -9,10 +9,8 @@ use crate::{error::ErrorMessage, AccountDeposit, Vault};
 pub struct Withdraw<'info> {
     #[account(mut)]
     pub sender: Signer<'info>,
-    #[account(mut)]
-    pub operator: Signer<'info>,
+
     /// CHECK only for pubKey
-    #[account()]
     pub receiver: AccountInfo<'info>,
     #[account(
         init_if_needed,
@@ -34,7 +32,6 @@ pub struct Withdraw<'info> {
         seeds = [b"Vault"],
         bump,
         has_one = mint,
-        has_one = operator
     )]
     pub vault: Box<Account<'info, Vault>>,
     #[account(
@@ -44,12 +41,15 @@ pub struct Withdraw<'info> {
         constraint = ata_vault.amount > amount @ErrorMessage::BalanceInsufficient
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
+    /// CHECK only for pubKey
+    pub operator: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 pub fn handler_withdraw(ctx: Context<Withdraw>, amount: u64, _id: String) -> Result<()> {
+    require!(ctx.accounts.operator.key() == ctx.accounts.vault.operator, ErrorMessage::InvalidOperator);
     let seeds = &[&[b"Vault", bytemuck::bytes_of(&ctx.bumps.vault)][..]];
 
     transfer_token_to_account(
@@ -62,7 +62,10 @@ pub fn handler_withdraw(ctx: Context<Withdraw>, amount: u64, _id: String) -> Res
     )?;
 
     let account_deposit = &mut ctx.accounts.account_deposit;
-    account_deposit.withdraw_amount = account_deposit.deposit_amount.checked_add(amount).unwrap_or(0);
+    account_deposit.withdraw_amount = account_deposit
+        .withdraw_amount
+        .checked_add(amount)
+        .unwrap_or(0);
 
     Ok(())
 }
